@@ -151,6 +151,11 @@ public class VuFindIndexer extends SolrIndexer
         if (file.exists()) {
             return file;
         }
+        // try vufindHome
+        file = new File(vufindHome + "/" + filename);
+        if (file.exists()) {
+            return file;
+        }
         // finally try current directory (as we run solrmarc outside
         // vufindHome
         file = new File(filename);
