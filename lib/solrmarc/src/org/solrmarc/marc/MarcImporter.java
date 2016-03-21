@@ -345,9 +345,26 @@ public class MarcImporter extends MarcHandler
                     }
                     else if (e instanceof SolrRuntimeException) 
                     {
-                        // stop indexing
-	                    logger.error("******** Halting indexing! ********");
-                        throw (new SolrRuntimeException(cause.getMessage(), (Exception)cause));
+                        // Can't write to index. Maybe HTTP problems? Keep
+                        // trying for 30 seconds before giving up
+                        keepontrying = false;
+                        tries = tries + 1;
+                        logger.error("******** Pausing indexing! " + (recCntlNum != null ? recCntlNum : "") + " (" + tries + ") ********");
+                        if (tries < 6) {
+                            keepontrying = true;
+                            try {
+                                Thread.sleep(5000);
+                            }
+                                catch (Exception f) {
+                            }
+                        }
+                        else {
+                               
+                            keepontrying = false;
+                            tries = 0;
+                            logger.error("******** Giving up on " + (recCntlNum != null ? recCntlNum : "") + " ********");
+                       }
+
                     }
                 }
                 else if (e instanceof SolrMarcIndexerException)
@@ -376,12 +393,28 @@ public class MarcImporter extends MarcHandler
                 }
                 else
                 {
-            	    logger.error("Unable to index record " + (recCntlNum != null ? recCntlNum : "") + " (record count "+ recsReadCounter +  ") -- " + e.getMessage(), e);
-                    // this error should (might?) only be thrown if we can't write to the index
-                    //   therefore, continuing to index would be pointless.
-                    logger.error("******** Halting indexing! ********");
-                    if (e instanceof SolrRuntimeException) throw ((SolrRuntimeException)e);
+                    // HTTP problems? Keep on trying before
+                    // giving up
+                    tries = tries + 1;
+                    keepontrying = false;
+                    logger.error("Unable to index record " + (recCntlNum != null ? recCntlNum : "") + " (record count "+ recsReadCounter +  ") -- " + e.getMessage(), e);
+                    logger.error("******** Pausing indexing! " + (recCntlNum != null ? recCntlNum : "") + " (" + tries + ") ********");
+
+                    if (tries < 6) {
+                        keepontrying = true;
+                        try {
+                            Thread.sleep(5000);
+                        }
+                        catch (Exception f) {
+                        }
+                    }
+                    else {
+                        keepontrying = false;
+                        tries = 0;
+                        logger.error("******** Giving up on " + (recCntlNum != null ? recCntlNum : "") + " ********");
+                    }
                 }
+
             }
         }
         
