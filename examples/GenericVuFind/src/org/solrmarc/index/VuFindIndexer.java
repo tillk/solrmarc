@@ -124,7 +124,6 @@ public class VuFindIndexer extends SolrIndexer
         if (vufindHome == null) {
             vufindHome = "..";
         }
-
         // Check for VuFind 2.0's local directory environment variable:
         String vufindLocal = System.getenv("VUFIND_LOCAL_DIR");
 
@@ -156,8 +155,7 @@ public class VuFindIndexer extends SolrIndexer
         if (file.exists()) {
             return file;
         }
-        // finally try current directory (as we run solrmarc outside
-        // vufindHome
+        // finally try current directory
         file = new File(filename);
         return file;
     }
