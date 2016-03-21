@@ -283,6 +283,9 @@ public class MarcImporter extends MarcHandler
      */
     public int importRecords()
     {
+        // neded for "flow control" in case of error while indexing
+        boolean keepontrying;
+        int tries = 0;
         // keep track of record counts
         recsReadCounter = 0;
         recsIndexedCounter = 0;
